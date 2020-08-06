@@ -106,7 +106,7 @@ public class ProductController {
         return productDao.chercherUnProduitCher(prix);
     }
 
-
+    //calcul marge
     @GetMapping(value = "AdminProduits")
     public Map<Product,Integer> calculerMargeProduit(){
         Map<Product,Integer> tmpMap = new HashMap<>();
@@ -115,6 +115,19 @@ public class ProductController {
             tmpMap.put(p, p.getPrix()-p.getPrixAchat());
         }
         return tmpMap;
+    }
+
+
+    //Récupérer la liste des produits par ordre alphabetique
+    @RequestMapping(value = "/Produits/Alph", method = RequestMethod.GET)
+    public MappingJacksonValue trierProduitsParOrdreAlphabetique() {
+
+        Iterable<Product> produits = productDao.findAllByOrderByNomAsc();
+        SimpleBeanPropertyFilter monFiltre = SimpleBeanPropertyFilter.serializeAll();
+        FilterProvider listDeNosFiltres = new SimpleFilterProvider().addFilter("monFiltreDynamique", monFiltre);
+        MappingJacksonValue produitsFiltres = new MappingJacksonValue(produits);
+        produitsFiltres.setFilters(listDeNosFiltres);
+        return produitsFiltres;
     }
 
 

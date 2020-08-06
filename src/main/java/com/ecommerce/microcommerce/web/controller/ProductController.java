@@ -16,11 +16,12 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
-@Api( description="API pour es opérations CRUD sur les produits.")
-
+@Api(tags = {"Swagger Resource"})
 @RestController
 public class ProductController {
 
@@ -69,10 +70,12 @@ public class ProductController {
 
     public ResponseEntity<Void> ajouterProduit(@Valid @RequestBody Product product) {
 
-        Product productAdded =  productDao.save(product);
 
-        if (productAdded == null)
+
+        if (product == null)
             return ResponseEntity.noContent().build();
+
+        Product productAdded =  productDao.save(product);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -86,7 +89,7 @@ public class ProductController {
     @DeleteMapping (value = "/Produits/{id}")
     public void supprimerProduit(@PathVariable int id) {
 
-        productDao.delete(id);
+        productDao.deleteById(id);
     }
 
     @PutMapping (value = "/Produits")
@@ -100,9 +103,19 @@ public class ProductController {
     @GetMapping(value = "test/produits/{prix}")
     public List<Product>  testeDeRequetes(@PathVariable int prix) {
 
-        return productDao.chercherUnProduitCher(400);
+        return productDao.chercherUnProduitCher(prix);
     }
 
+
+    @GetMapping(value = "AdminProduits")
+    public Map<Product,Integer> calculerMargeProduit(){
+        Map<Product,Integer> tmpMap = new HashMap<>();
+
+        for(Product p : productDao.findAll()){
+            tmpMap.put(p, p.getPrix()-p.getPrixAchat());
+        }
+        return tmpMap;
+    }
 
 
 }
